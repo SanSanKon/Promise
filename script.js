@@ -1,4 +1,7 @@
+let body = document.body;
+let preloader = document.querySelector('.loadingio-spinner-spinner-qgyvztg7tu');
 const url = window.location.toString();
+let rightNow = new Date;
 
 const getName = (url) => {
   const urlSplit = url.split('=');
@@ -11,8 +14,17 @@ const getName = (url) => {
 
 const username = getName(url);
 
-fetch('https://api.github.com/users/' + username)
-.then(res => res.json())
+const getDate = new Promise((resolve, reject) => {setTimeout(() => rightNow ? resolve(rightNow) : reject('No such a date'), 2000);
+});
+
+const userInformation = fetch('https://api.github.com/users/' + username);
+
+Promise.all([userInformation, getDate])
+.then(([request, date]) => {
+  requestInfo = request;
+  requestDate = date;
+})
+.then(res => requestInfo.json())
 .then(json => {
   let picture = json.avatar_url;
   let name = json.login;
@@ -24,7 +36,6 @@ fetch('https://api.github.com/users/' + username)
       addPicture.src = picture;
       document.body.appendChild(addPicture);
     }
-
 
   let createBio = () => {
         let addBio = document.createElement('h2');
@@ -47,9 +58,20 @@ fetch('https://api.github.com/users/' + username)
         elementForLink.appendChild(elementForHeader);
       }
 
+      const createDate = () => {
+        let rightNow = new Date();
+        let addDate = document.createElement('h2');
+        addDate.innerHTML = rightNow;
+        if (rightNow) {
+          document.body.appendChild(addDate);
+        }
+      }
+
+      preloader.style.display = 'none';
       createPicture();
       createInfo();
       createBio();
+      createDate();
     } else {
       alert('Информация о пользователе не доступна');
     }
